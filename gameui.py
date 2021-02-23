@@ -36,12 +36,12 @@ class Spot:
     # let me draw the spots
 
     def draw(self, win):
-        pygame.draw.rect(
-            win, self.color, (self.x, self.y, self.width, self.height))
+        pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
+    
     # color change methods
-
     def make_wall(self):
         self.color = BLACK
+        print("Made a wall!")
 
     def make_start(self):
         self.color = ORANGE
@@ -98,16 +98,17 @@ class Spot:
 
 def make_grid(rows, width, height):
     grid = []
-    for i in range(0, width):
+    gap = width // height
+    for i in range(rows):
         grid.append([])
-        for j in range(0, height):
-            spot = Spot(i, j, width, height)
+        for j in range(rows):
+            spot = Spot(i, j, gap, height)
             grid[i].append(spot)
     return grid
 
+
+
 # Draw a grid on screen
-
-
 def draw_grid(win, rows, width):
     space = width // rows
     for i in range(rows):
@@ -130,10 +131,16 @@ def draw(win, grid, rows, width):
 # where did the user click?
 
 
-# def get_clicked_pos(pos, rows, width):
-    # game loop
+def get_clicked_pos(pos, rows, width):
+    y, x = pos;
+    gap = width // rows
+    row = y // gap
+    col = x // gap
+    return row, col    
+# game loop
 
 def main(win, width):
+    
     rows = 50
     run = True
     grid = make_grid(rows, width, width)
@@ -142,6 +149,13 @@ def main(win, width):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+            if pygame.mouse.get_pressed()[0]: #left click
+                pos = pygame.mouse.get_pos()
+                print(pos)
+                row, col = get_clicked_pos(pos, rows, width)
+                spot = grid[row][col]
+                print(spot,row,col)
+                spot.make_wall()
     pygame.quit()
 
 main(WINDOW, WIDTH)
