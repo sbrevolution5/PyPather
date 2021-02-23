@@ -28,4 +28,7 @@ class Spot:
     def get_pos(self):
         return (self.col, self.row)
 
-    #
+    
+# Draw a grid on screen
+# when user clicks mouse on grid, they change the color of the cell
+# Allow for a few small buttons to place start and end
