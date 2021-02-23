@@ -1,5 +1,6 @@
 import pygame
 import math
+from queue import Queue
 
 WIDTH = 800
 # initialize window
@@ -41,7 +42,6 @@ class Spot:
     # color change methods
     def make_wall(self):
         self.color = BLACK
-        print("Made a wall!")
 
     def make_start(self):
         self.color = ORANGE
@@ -98,11 +98,11 @@ class Spot:
 
 def make_grid(rows, width, height):
     grid = []
-    gap = width // height
+    gap = width // rows
     for i in range(rows):
         grid.append([])
         for j in range(rows):
-            spot = Spot(i, j, gap, height)
+            spot = Spot(i, j, gap, gap)
             grid[i].append(spot)
     return grid
 
@@ -144,6 +144,8 @@ def main(win, width):
     rows = 50
     run = True
     grid = make_grid(rows, width, width)
+    start = None
+    end = None
     while(run):
         draw(win, grid, rows, width)
         for event in pygame.event.get():
@@ -151,11 +153,27 @@ def main(win, width):
                 run = False
             if pygame.mouse.get_pressed()[0]: #left click
                 pos = pygame.mouse.get_pos()
-                print(pos)
                 row, col = get_clicked_pos(pos, rows, width)
                 spot = grid[row][col]
-                print(spot,row,col)
-                spot.make_wall()
+                if not start and spot != end:
+                    start = spot
+                    spot.make_start();
+                elif not end and spot != start:
+                    end = spot
+                    spot.make_end();
+                else:
+                    spot.make_wall()
+            if pygame.mouse.get_pressed()[2]: # rclick
+                pos = pygame.mouse.get_pos()
+                row, col = get_clicked_pos(pos, rows, width)
+                spot = grid[row][col]
+                spot.reset()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_c: # c key will clear board
+                    start = None
+                    end = None
+                    grid = make_grid(rows, width)
+
     pygame.quit()
 
 main(WINDOW, WIDTH)
