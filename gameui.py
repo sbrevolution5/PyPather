@@ -100,6 +100,7 @@ class Spot:
 class StackFrontier():
     def __init__(self):
         self.frontier = []
+        self.explored = []
     # adds node to frontier
     def add(self, node):
         self.frontier.append(node)
@@ -110,11 +111,13 @@ class StackFrontier():
     def empty(self):
         return len(self.frontier) == 0
     #Removes last  node in frontier
-    def remove(self):
+    def explore(self): #previously called remove
         if self.empty():
-            raise Exception("Empty frontier")
+            print("No solution found")
+            return
         else:
             node = self.frontier[-1] #last node
+            self.explored.append(node); #adds node to explored set
             self.frontier = self.frontier[:-1] # all except the last one 
             return node
 # TODO creat QueueFrontier for BFS
@@ -208,19 +211,20 @@ def get_clicked_pos(pos, rows, width):
     row = y // gap
     col = x // gap
     return row, col    
-def solve_dfs(grid):
+def solve_dfs(grid, start, end):
     #"""Finds a solution to maze, if one exists."""
 
     # Keep track of number of states explored
 
     # Initialize frontier to just the starting position
-
+    frontier = StackFrontier()
+    frontier.add(start)
     # Initialize an empty explored set
-
+    
     # Keep looping until solution found
 
     # If nothing left in frontier, then no path
-
+    
     # Choose a node from the frontier
 
     # If node is the goal, then we have a solution
