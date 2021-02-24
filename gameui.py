@@ -4,7 +4,7 @@ import sys
 from queue import Queue
 from random import randint
 
-
+MAX_WIDTH = 50 # Maximum number of columns
 WIDTH = 800
 # initialize window
 WINDOW = pygame.display.set_mode((WIDTH, WIDTH))  # always square
@@ -84,18 +84,18 @@ class Spot:
     def update_neighbors(self, grid):
         self.neighbors = []  # erases current neighbors
         # if it isn't the last row and the one below it isn't a wall,
-        if self.x < self.height-1 and not grid[self.x][self.y+1].is_wall():
+        if self.row < MAX_WIDTH - 1 and not grid[self.row+1][self.col].is_wall():
             # then add that to neighbors
-            self.neighbors.append(grid[self.x][self.y+1])
-        if self.x > 0 and not grid[self.x][self.y-1].is_wall():
+            self.neighbors.append(grid[self.row+1][self.col])
+        if self.row > 0 and not grid[self.row][self.col-1].is_wall():
             # then add that to neighbors
-            self.neighbors.append(grid[self.x][self.y-1])
-        if self.y < self.width-1 and not grid[self.x+1][self.y].is_wall():
+            self.neighbors.append(grid[self.row][self.col-1])
+        if self.col < MAX_WIDTH - 1 and not grid[self.row][self.col+1].is_wall():
             # then add that to neighbors
-            self.neighbors.append(grid[self.x+1][self.y])
-        if self.y > 0 and not grid[self.x-1][self.y].is_wall():
+            self.neighbors.append(grid[self.row][self.col+1])
+        if self.col > 0 and not grid[self.row-1][self.col].is_wall():
             # then add that to neighbors
-            self.neighbors.append(grid[self.x-1][self.y])
+            self.neighbors.append(grid[self.row-1][self.col])
 #Frontier class
 class StackFrontier():
     def __init__(self):
@@ -106,7 +106,7 @@ class StackFrontier():
         self.frontier.append(node)
     #checks if state is in frontier
     def contains_state(self, state):
-        return any(node.state == state for node in self.frontier)
+        return any(node == state for node in self.frontier)
     #checks if frontier is empty
     def empty(self):
         return len(self.frontier) == 0
@@ -130,7 +130,36 @@ class QueueFrontier(StackFrontier):
             node = self.frontier[0] #first node
             self.frontier = self.frontier[1:] # all except the first one 
             return node
+def solve_dfs(grid, start, end):
+    #"""Finds a solution to maze, if one exists."""
 
+    # Keep track of number of states explored (LATER FOR A* OR GREEDY BEST)
+
+    # Initialize frontier to just the starting position
+    # Initialize an empty explored set
+    frontier = StackFrontier()
+    frontier.add(start)
+    
+    # Keep looping until solution found
+    while True:
+    # If nothing left in frontier, then no path
+        if frontier.empty():
+            print("Path unfindable")
+            return
+    # Choose a node from the frontier
+        check = frontier.explore()
+        check.make_closed
+        # Mark node as explored
+    # If node is the goal, then we have a solution
+        if end == check:
+            print("We Found it!!")
+            return
+    # Add neighbors to frontier unless they have already been explored
+        check.update_neighbors(grid)
+        for neighbor in check.neighbors:
+            grid[neighbor.row][neighbor.col].make_open
+            if not frontier.contains_state(neighbor):
+                frontier.add(neighbor)
 
 # FUNCTIONS ---------------
 def rand_maze(path_percent_int = 80):
@@ -138,15 +167,15 @@ def rand_maze(path_percent_int = 80):
     # Generates random maze  that is 80% path, Will not always be solvable, but should be----------------
     #Change this to alter percentage of paths
     new_maze = []
-    new_maze.append("A")
-    for i in range(1, 50):
+    for i in range(0, 50):
         row = []
-        for j in range(1,50):
+        for j in range(0,50):
             if randint(1,100) > path_percent_int:
                 row.append("C")
             else: 
                 row.append(" ")
         new_maze.append(row)
+    new_maze[0][0]="A"
     new_maze[48][40]="B"
     return new_maze
 
@@ -174,14 +203,17 @@ def color_switch(letter):
 def make_grid_from_maze(rows, width, maze):
     grid = []
     gap = width//rows
-    for i in range(len(maze)):
+    for i in range(0, len(maze)):
         grid.append([])
-        for j in range(len(maze[i])):
+        for j in range(0, len(maze[i])):
             color = color_switch(maze[i][j])            
             spot = Spot(i,j,gap,gap, color)
+            if spot.color == ORANGE:
+                start = spot
+            elif spot.color == TURQUOISE:
+                end = spot
             grid[i].append(spot)
-    return grid
-
+    return grid, start, end
 # Draw a grid on screen
 def draw_grid(win, rows, width):
     space = width // rows
@@ -189,12 +221,7 @@ def draw_grid(win, rows, width):
         pygame.draw.line(win, GREY, (0, i * space), (width, i*space))
         for j in range(rows):
             pygame.draw.line(win, GREY, (j*space, 0), (j*space, width))
-
-# when user clicks mouse on grid, they change the color of the cell
-# Allow for a few small buttons to place start and end
 # draws background
-
-
 def draw(win, grid, rows, width):
     win.fill(WHITE)
     for row in grid:
@@ -203,42 +230,13 @@ def draw(win, grid, rows, width):
     draw_grid(win, rows, width)
     pygame.display.update()
 # where did the user click?
-
-
 def get_clicked_pos(pos, rows, width):
     y, x = pos;
     gap = width // rows
     row = y // gap
     col = x // gap
     return row, col    
-def solve_dfs(grid, start, end):
-    #"""Finds a solution to maze, if one exists."""
 
-    # Keep track of number of states explored
-
-    # Initialize frontier to just the starting position
-    # Initialize an empty explored set
-    frontier = StackFrontier()
-    frontier.add(start)
-    
-    # Keep looping until solution found
-    while True:
-    # If nothing left in frontier, then no path
-        if frontier.empty():
-            print("Path unfindable")
-            return
-    # Choose a node from the frontier
-        check = frontier.explore()
-        # Mark node as explored
-    # If node is the goal, then we have a solution
-        if end == check:
-            print("We Found it!!")
-            return
-    # Add neighbors to frontier unless they have already been explored
-        check.update_neighbors(grid)
-        for neighbor in check.neighbors:
-            if neighbor not in frontier.explored:
-                frontier.add(neighbor)
 
 # "game" loop
 def main(win, width):
@@ -247,11 +245,11 @@ def main(win, width):
     maze = rand_maze()
     gen = True #should the program generate a maze on its own?
     if gen:
-        grid = make_grid_from_maze(rows, width, maze) #makes a random maze 
+        grid, start, end = make_grid_from_maze(rows, width, maze) #makes a random maze 
     else:
         grid = make_grid(rows, width)
-    start = None
-    end = None
+        start = None
+        end = None
     while(run):
         draw(win, grid, rows, width)
         for event in pygame.event.get():
@@ -277,6 +275,7 @@ def main(win, width):
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     print("Running pathfinding algorithm, eventually....")
+                    solve_dfs(grid, start, end)
                 if event.key == pygame.K_r:
                     #Creates new random maze
                     maze = rand_maze()
