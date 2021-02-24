@@ -3,22 +3,8 @@ import math
 import sys
 from queue import Queue
 from random import randint
-def rand_maze(path_percent_int = 80):
 
-    # Generates random maze  that is 80% path, Will not always be solvable, but should be----------------
-    #Change this to alter percentage of paths
-    new_maze = []
-    new_maze.append("A")
-    for i in range(1, 50):
-        row = []
-        for j in range(1,50):
-            if randint(1,100) > path_percent_int:
-                row.append("C")
-            else: 
-                row.append(" ")
-        new_maze.append(row)
-    new_maze[48][40]="B"
-    return new_maze
+
 WIDTH = 800
 # initialize window
 WINDOW = pygame.display.set_mode((WIDTH, WIDTH))  # always square
@@ -38,12 +24,12 @@ TURQUOISE = (64, 224, 208)
 
 
 class Spot:
-    def __init__(self, row, col, width, height):
+    def __init__(self, row, col, width, height, color=WHITE ):
         self.row = row
         self.col = col
         self.x = row * width
         self.y = col * height
-        self.color = WHITE
+        self.color = color
         self.width = width
         self.height = height
         self.neighbors = []
@@ -110,9 +96,27 @@ class Spot:
         if self.y > 0 and not grid[self.x-1][self.y].is_wall():
             # then add that to neighbors
             self.neighbors.append(grid[self.x-1][self.y])
+
+# FUNCTIONS ---------------
+def rand_maze(path_percent_int = 80):
+
+    # Generates random maze  that is 80% path, Will not always be solvable, but should be----------------
+    #Change this to alter percentage of paths
+    new_maze = []
+    new_maze.append("A")
+    for i in range(1, 50):
+        row = []
+        for j in range(1,50):
+            if randint(1,100) > path_percent_int:
+                row.append("C")
+            else: 
+                row.append(" ")
+        new_maze.append(row)
+    new_maze[48][40]="B"
+    return new_maze
+
+
 # create an array (grid) of Spots,
-
-
 def make_grid(rows, width):
     grid = []
     gap = width // rows
@@ -122,12 +126,25 @@ def make_grid(rows, width):
             spot = Spot(i, j, gap, gap)
             grid[i].append(spot)
     return grid
-
-# def make_grid_from_maze(rows, width, maze):
-#     grid = []
-#     gap = width//rows
-#     for i in range(rows)
-
+# switch function for colors
+def color_switch(letter):
+    switcher = {
+        "A": ORANGE,
+        "B": TURQUOISE,
+        "C": BLACK
+    }
+    return switcher.get(letter, WHITE)
+def make_grid_from_maze(rows, width, maze):
+    grid = []
+    gap = width//rows
+    for i in maze:
+        grid.append([])
+        color = WHITE
+        for j in maze[i]:
+            switch(maze[i][j]):
+                case "A": color=ORANGE;
+                    break;
+            spot = Spot(i,j,gap,gap)
 
 # Draw a grid on screen
 def draw_grid(win, rows, width):
