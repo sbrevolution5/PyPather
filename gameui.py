@@ -139,9 +139,9 @@ def color_switch(letter):
 def make_grid_from_maze(rows, width, maze):
     grid = []
     gap = width//rows
-    for i in maze:
+    for i in range(len(maze)):
         grid.append([])
-        for j in maze[i]:
+        for j in range(len(maze[i])):
             color = color_switch(maze[i][j])            
             spot = Spot(i,j,gap,gap, color)
             grid[i].append(spot)
@@ -179,11 +179,14 @@ def get_clicked_pos(pos, rows, width):
 # game loop
 
 def main(win, width):
-    maze = rand_maze()
-    print(maze)
     rows = 50
     run = True
-    grid = make_grid(rows, width)
+    maze = rand_maze()
+    gen = True #should the program generate a maze on its own?
+    if gen:
+        grid = make_grid_from_maze(rows, width, maze) #makes a random maze 
+    else:
+        grid = make_grid(rows, width)
     start = None
     end = None
     while(run):
@@ -209,6 +212,14 @@ def main(win, width):
                 spot = grid[row][col]
                 spot.reset()
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    print("Running pathfinding algorithm, eventually....")
+                if event.key == pygame.K_r:
+                    #Creates new random maze
+                    maze = rand_maze()
+                    start = None
+                    end = None
+                    grid = make_grid_from_maze(rows, width, maze)
                 if event.key == pygame.K_c: # c key will clear board
                     start = None
                     end = None
