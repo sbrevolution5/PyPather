@@ -117,6 +117,7 @@ class StackFrontier():
             return
         else:
             node = self.frontier[-1] #last node
+            node.make_closed();
             self.explored.append(node); #adds node to explored set
             self.frontier = self.frontier[:-1] # all except the last one 
             return node
@@ -156,7 +157,7 @@ def solve_dfs(grid, start, end,draw):
         grid[check.row][check.col].make_closed
     # Add neighbors to frontier unless they have already been explored
         for neighbor in check.neighbors:
-            grid[neighbor.row][neighbor.col].make_open
+            grid[neighbor.row][neighbor.col].make_open();
             if not frontier.contains_state(neighbor) and not neighbor in frontier.explored:
                 frontier.add(neighbor)
         draw();
