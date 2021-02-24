@@ -80,7 +80,7 @@ class Spot:
     def is_open(self):
         return self.color == GREEN
     # function to fill in neighbors
-
+    #when to call it?
     def update_neighbors(self, grid):
         self.neighbors = []  # erases current neighbors
         # if it isn't the last row and the one below it isn't a wall,
@@ -217,25 +217,30 @@ def solve_dfs(grid, start, end):
     # Keep track of number of states explored
 
     # Initialize frontier to just the starting position
+    # Initialize an empty explored set
     frontier = StackFrontier()
     frontier.add(start)
-    # Initialize an empty explored set
     
     # Keep looping until solution found
-
+    while True:
     # If nothing left in frontier, then no path
-    
+        if frontier.empty():
+            print("Path unfindable")
+            return
     # Choose a node from the frontier
-
+        check = frontier.explore()
+        # Mark node as explored
     # If node is the goal, then we have a solution
+        if end == check:
+            print("We Found it!!")
+            return
+    # Add neighbors to frontier unless they have already been explored
+        check.update_neighbors(grid)
+        for neighbor in check.neighbors:
+            if neighbor not in frontier.explored:
+                frontier.add(neighbor)
 
-    # Mark node as explored
-
-    # Add neighbors to frontier
-           
-
-# game loop
-
+# "game" loop
 def main(win, width):
     rows = 50
     run = True
