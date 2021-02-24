@@ -96,6 +96,38 @@ class Spot:
         if self.y > 0 and not grid[self.x-1][self.y].is_wall():
             # then add that to neighbors
             self.neighbors.append(grid[self.x-1][self.y])
+#Frontier class
+class StackFrontier():
+    def __init__(self):
+        self.frontier = []
+    # adds node to frontier
+    def add(self, node):
+        self.frontier.append(node)
+    #checks if state is in frontier
+    def contains_state(self, state):
+        return any(node.state == state for node in self.frontier)
+    #checks if frontier is empty
+    def empty(self):
+        return len(self.frontier) == 0
+    #Removes last  node in frontier
+    def remove(self):
+        if self.empty():
+            raise Exception("Empty frontier")
+        else:
+            node = self.frontier[-1] #last node
+            self.frontier = self.frontier[:-1] # all except the last one 
+            return node
+# TODO creat QueueFrontier for BFS
+class QueueFrontier(StackFrontier):
+    #same as before except for remove
+    def remove(self):
+        if self.empty():
+            raise Exception("Empty frontier")
+        else:
+            node = self.frontier[0] #first node
+            self.frontier = self.frontier[1:] # all except the first one 
+            return node
+
 
 # FUNCTIONS ---------------
 def rand_maze(path_percent_int = 80):
@@ -176,6 +208,28 @@ def get_clicked_pos(pos, rows, width):
     row = y // gap
     col = x // gap
     return row, col    
+def solve_dfs(grid):
+    #"""Finds a solution to maze, if one exists."""
+
+    # Keep track of number of states explored
+
+    # Initialize frontier to just the starting position
+
+    # Initialize an empty explored set
+
+    # Keep looping until solution found
+
+    # If nothing left in frontier, then no path
+
+    # Choose a node from the frontier
+
+    # If node is the goal, then we have a solution
+
+    # Mark node as explored
+
+    # Add neighbors to frontier
+           
+
 # game loop
 
 def main(win, width):
