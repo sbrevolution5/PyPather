@@ -1,6 +1,7 @@
 import pygame
 import math
 import sys
+import time
 from queue import Queue
 from random import randint
 
@@ -87,15 +88,15 @@ class Spot:
         if self.row < MAX_WIDTH - 1 and not grid[self.row+1][self.col].is_wall():
             # then add that to neighbors
             self.neighbors.append(grid[self.row+1][self.col])
-        if self.row > 0 and not grid[self.row][self.col-1].is_wall():
+        if self.row > 0 and not grid[self.row-1][self.col].is_wall():
             # then add that to neighbors
-            self.neighbors.append(grid[self.row][self.col-1])
+            self.neighbors.append(grid[self.row-1][self.col])
         if self.col < MAX_WIDTH - 1 and not grid[self.row][self.col+1].is_wall():
             # then add that to neighbors
             self.neighbors.append(grid[self.row][self.col+1])
-        if self.col > 0 and not grid[self.row-1][self.col].is_wall():
+        if self.col > 0 and not grid[self.row][self.col-1].is_wall():
             # then add that to neighbors
-            self.neighbors.append(grid[self.row-1][self.col])
+            self.neighbors.append(grid[self.row][self.col-1])
 #Frontier class
 class StackFrontier():
     def __init__(self):
@@ -111,9 +112,10 @@ class StackFrontier():
     def empty(self):
         return len(self.frontier) == 0
     #Removes last  node in frontier
-    def explore(self): #previously called remove
+    def explore(self, fromdict): #previously called remove
         if self.empty():
             print("No solution found")
+            fromdict[self.frontier[-1]] = None
             return
         else:
             node = self.frontier[-1] #last node
@@ -136,33 +138,53 @@ def solve_dfs(grid, start, end,draw):
 
     # Keep track of number of states explored (LATER FOR A* OR GREEDY BEST)
 
+    #keep track of path taken via dictionary
+    fromdict = {}
     # Initialize frontier to just the starting position
     # Initialize an empty explored set
     frontier = StackFrontier()
     frontier.add(start)
-    startcell = frontier.frontier[0]
+    #used to build fromdict
+    previous = None
+    check = None
     # Keep looping until solution found
     while True:
+        #time.sleep(0.1) #slows down animation probably completely inefficient
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
     # If nothing left in frontier, then no path
         if frontier.empty():
             print("Path unfindable")
             return
     # Choose a node from the frontier
-        check = frontier.explore()
+        if check != None:
+            previous = check
+        check = frontier.explore(fromdict)
+        fromdict[check] = previous
         # Mark node as explored
     # If node is the goal, then we have a solution
         if end == check:
+            draw_path(fromdict, check, lambda: draw())
             print("We Found it!!")
             return
-        grid[check.row][check.col].make_closed
+        grid[check.row][check.col].make_open()
     # Add neighbors to frontier unless they have already been explored
         for neighbor in check.neighbors:
-            grid[neighbor.row][neighbor.col].make_open();
+            grid[neighbor.row][neighbor.col].make_closed();
             if not frontier.contains_state(neighbor) and not neighbor in frontier.explored:
                 frontier.add(neighbor)
         draw();
 
 # FUNCTIONS ---------------
+def draw_path(fromdict, current, draw):
+    while current in fromdict:
+        current = fromdict.pop(current)
+        if current != None:
+            current.make_path()
+        draw()
+    return
+
 def rand_maze(path_percent_int = 80):
 
     # Generates random maze  that is 80% path, Will not always be solvable, but should be----------------
@@ -243,13 +265,13 @@ def main(win, width):
     rows = 50
     run = True
     maze = rand_maze()
-    gen = True #should the program generate a maze on its own?
-    if gen:
-        grid, start, end = make_grid_from_maze(rows, width, maze) #makes a random maze 
-    else:
-        grid = make_grid(rows, width)
-        start = None
-        end = None
+    # gen = False #should the program generate a maze on its own?
+    # if gen:
+    #     grid, start, end = make_grid_from_maze(rows, width, maze) #makes a random maze 
+    # else:
+    grid = make_grid(rows, width)
+    start = None
+    end = None
     while(run):
         draw(win, grid, rows, width)
         for event in pygame.event.get():
@@ -265,15 +287,19 @@ def main(win, width):
                 elif not end and spot != start:
                     end = spot
                     spot.make_end();
-                else:
+                elif spot != end and spot!=start:
                     spot.make_wall()
             if pygame.mouse.get_pressed()[2]: # rclick
                 pos = pygame.mouse.get_pos()
                 row, col = get_clicked_pos(pos, rows, width)
                 spot = grid[row][col]
+                if spot == start:
+                    start = None
+                elif spot == end: 
+                    end = None
                 spot.reset()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_SPACE and start!=None and end!=None:
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
