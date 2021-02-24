@@ -133,6 +133,7 @@ class QueueFrontier(StackFrontier):
             node = self.frontier[0] #first node
             self.frontier = self.frontier[1:] # all except the first one 
             return node
+
 def solve_dfs(grid, start, end,draw):
     #"""Finds a solution to maze, if one exists."""
 
@@ -174,8 +175,53 @@ def solve_dfs(grid, start, end,draw):
             grid[neighbor.row][neighbor.col].make_closed();
             if not frontier.contains_state(neighbor) and not neighbor in frontier.explored:
                 frontier.add(neighbor)
+        start.make_start()
+        end.make_end()
         draw();
+def solve_bfs(grid, start, end,draw):
+    #"""Finds a solution to maze, if one exists."""
 
+    # Keep track of number of states explored (LATER FOR A* OR GREEDY BEST)
+
+    #keep track of path taken via dictionary
+    fromdict = {}
+    # Initialize frontier to just the starting position
+    # Initialize an empty explored set
+    frontier = QueueFrontier()
+    frontier.add(start)
+    #used to build fromdict
+    previous = None
+    check = None
+    # Keep looping until solution found
+    while True:
+        #time.sleep(0.1) #slows down animation probably completely inefficient
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+    # If nothing left in frontier, then no path
+        if frontier.empty():
+            print("Path unfindable")
+            return
+    # Choose a node from the frontier
+        if check != None:
+            previous = check
+        check = frontier.explore(fromdict)
+        fromdict[check] = previous
+        # Mark node as explored
+    # If node is the goal, then we have a solution
+        if end == check:
+            draw_path(fromdict, check, lambda: draw())
+            print("We Found it!!")
+            return
+        grid[check.row][check.col].make_open()
+    # Add neighbors to frontier unless they have already been explored
+        for neighbor in check.neighbors:
+            grid[neighbor.row][neighbor.col].make_closed();
+            if not frontier.contains_state(neighbor) and not neighbor in frontier.explored:
+                frontier.add(neighbor)
+        start.make_start()
+        end.make_end()
+        draw();
 # FUNCTIONS ---------------
 def draw_path(fromdict, current, draw):
     while current in fromdict:
@@ -299,6 +345,12 @@ def main(win, width):
                     end = None
                 spot.reset()
             if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_b and start!=None and end!=None:
+                    for row in grid:
+                        for spot in row:
+                            spot.update_neighbors(grid)
+                    print("Running pathfinding algorithm, eventually....")
+                    solve_bfs(grid, start, end,lambda:draw(win, grid, rows, width))
                 if event.key == pygame.K_SPACE and start!=None and end!=None:
                     for row in grid:
                         for spot in row:
