@@ -139,7 +139,7 @@ def solve_dfs(grid, start, end,draw):
     # Initialize an empty explored set
     frontier = StackFrontier()
     frontier.add(start)
-    
+    startcell = frontier.frontier[0]
     # Keep looping until solution found
     while True:
     # If nothing left in frontier, then no path
@@ -155,10 +155,9 @@ def solve_dfs(grid, start, end,draw):
             return
         grid[check.row][check.col].make_closed
     # Add neighbors to frontier unless they have already been explored
-        check.update_neighbors(grid)
         for neighbor in check.neighbors:
             grid[neighbor.row][neighbor.col].make_open
-            if not frontier.contains_state(neighbor):
+            if not frontier.contains_state(neighbor) and not neighbor in frontier.explored:
                 frontier.add(neighbor)
         draw();
 
@@ -237,12 +236,7 @@ def get_clicked_pos(pos, rows, width):
     row = y // gap
     col = x // gap
     return row, col    
-def turn_red(grid, draw):
-    for i in range(0,50):
-        for j in range (0,50):
-            if grid[i][j].color == BLACK:
-                grid[i][j].color = RED
-    draw()
+
 # "game" loop
 def main(win, width):
     rows = 50
@@ -278,9 +272,10 @@ def main(win, width):
                 spot = grid[row][col]
                 spot.reset()
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_q:
-                    turn_red(grid,lambda:draw(win, grid, rows, width))
                 if event.key == pygame.K_SPACE:
+                    for row in grid:
+                        for spot in row:
+                            spot.update_neighbors(grid)
                     print("Running pathfinding algorithm, eventually....")
                     solve_dfs(grid, start, end,lambda:draw(win, grid, rows, width))
                 if event.key == pygame.K_r:
@@ -288,7 +283,7 @@ def main(win, width):
                     maze = rand_maze()
                     start = None
                     end = None
-                    grid = make_grid_from_maze(rows, width, maze)
+                    grid,start,end = make_grid_from_maze(rows, width, maze)
                 if event.key == pygame.K_c: # c key will clear board
                     start = None
                     end = None
