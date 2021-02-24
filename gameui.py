@@ -1,7 +1,24 @@
 import pygame
 import math
+import sys
 from queue import Queue
+from random import randint
+def rand_maze(path_percent_int = 80):
 
+    # Generates random maze  that is 80% path, Will not always be solvable, but should be----------------
+    #Change this to alter percentage of paths
+    new_maze = []
+    new_maze.append("A")
+    for i in range(1, 50):
+        row = []
+        for j in range(1,50):
+            if randint(1,100) > path_percent_int:
+                row.append("C")
+            else: 
+                row.append(" ")
+        new_maze.append(row)
+    new_maze[48][40]="B"
+    return new_maze
 WIDTH = 800
 # initialize window
 WINDOW = pygame.display.set_mode((WIDTH, WIDTH))  # always square
@@ -96,7 +113,7 @@ class Spot:
 # create an array (grid) of Spots,
 
 
-def make_grid(rows, width, height):
+def make_grid(rows, width):
     grid = []
     gap = width // rows
     for i in range(rows):
@@ -106,6 +123,10 @@ def make_grid(rows, width, height):
             grid[i].append(spot)
     return grid
 
+# def make_grid_from_maze(rows, width, maze):
+#     grid = []
+#     gap = width//rows
+#     for i in range(rows)
 
 
 # Draw a grid on screen
@@ -140,10 +161,11 @@ def get_clicked_pos(pos, rows, width):
 # game loop
 
 def main(win, width):
-    
+    maze = rand_maze()
+    print(maze)
     rows = 50
     run = True
-    grid = make_grid(rows, width, width)
+    grid = make_grid(rows, width)
     start = None
     end = None
     while(run):
