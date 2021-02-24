@@ -131,20 +131,21 @@ def color_switch(letter):
     switcher = {
         "A": ORANGE,
         "B": TURQUOISE,
-        "C": BLACK
+        " ": WHITE
     }
-    return switcher.get(letter, WHITE)
+    #Anything that is not A B or space is a wall
+    return switcher.get(letter, BLACK)
+#makes grid from maze array, 
 def make_grid_from_maze(rows, width, maze):
     grid = []
     gap = width//rows
     for i in maze:
         grid.append([])
-        color = WHITE
         for j in maze[i]:
-            switch(maze[i][j]):
-                case "A": color=ORANGE;
-                    break;
-            spot = Spot(i,j,gap,gap)
+            color = color_switch(maze[i][j])            
+            spot = Spot(i,j,gap,gap, color)
+            grid[i].append(spot)
+    return grid
 
 # Draw a grid on screen
 def draw_grid(win, rows, width):
