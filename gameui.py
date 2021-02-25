@@ -2,7 +2,7 @@ import pygame
 import math
 import sys
 import time
-from queue import Queue
+from queue import Queue, PriorityQueue
 from random import randint
 
 MAX_WIDTH = 50 # Maximum number of columns
@@ -137,7 +137,24 @@ class QueueFrontier(StackFrontier):
             self.explored.append(node); #adds node to explored set
             self.frontier = self.frontier[1:] # all except the FIRST one 
             return node
-
+class PriorityFrontier(StackFrontier):
+    def __init__(self):
+        super().__init__()
+        self.frontier = PriorityQueue();
+    def add(self, node, dist): #takes the cell and manhattan distance
+        self.frontier.put(dist, node)
+    def explore(self, fromdict): #previously called remove
+        if self.frontier.empty():
+            print("No solution found")
+            fromdict[self.frontier[-1]] = None
+            return
+        else:
+            node = self.frontier.get() # first priority node
+            node.make_closed();
+            self.explored.append(node); #adds node to explored set
+            # next line is unneccesary when using get,
+            # self.frontier = self.frontier[1:] # all except the FIRST one 
+            return node
 def solve_dfs(grid, start, end,draw):
     #"""Finds a solution to maze, if one exists."""
 
@@ -232,13 +249,13 @@ def solve_bfs(grid, start, end,draw):
 def solve_greedy_best(grid, start, end,draw):
     #"""Finds a solution to maze, if one exists."""
     # All you need is a priority queue that sets priority for cell based on the manhattan distance
-    
+
     
 
     #keep track of path taken via dictionary
     fromdict = {}
     # Initialize frontier to just the starting position
-    frontier = QueueFrontier()
+    frontier = PriorityFrontier()
     frontier.add(start)
     #used to build fromdict
     previous = None
@@ -408,13 +425,20 @@ def main(win, width):
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
-                    print("Running pathfinding algorithm, eventually....")
+                    print("Running Breadth pathfinding algorithm, eventually....")
                     solve_bfs(grid, start, end,lambda:draw(win, grid, rows, width))
+                if event.key == pygame.K_g and start!=None and end!=None:
+                    for row in grid:
+                        for spot in row:
+                            spot.update_neighbors(grid)
+                    print("Running greedy best pathfinding algorithm, eventually....")
+                    solve_greedy_best(grid, start, end,lambda:draw(win, grid, rows, width))
+                
                 if event.key == pygame.K_SPACE and start!=None and end!=None:
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
-                    print("Running pathfinding algorithm, eventually....")
+                    print("Running Depth pathfinding algorithm, eventually....")
                     solve_dfs(grid, start, end,lambda:draw(win, grid, rows, width))
                 if event.key == pygame.K_r:
                     #Creates new random maze
