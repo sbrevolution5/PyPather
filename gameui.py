@@ -126,12 +126,16 @@ class StackFrontier():
 # TODO creat QueueFrontier for BFS
 class QueueFrontier(StackFrontier):
     #same as before except for remove
-    def remove(self):
+    def explore(self, fromdict): #previously called remove
         if self.empty():
-            raise Exception("Empty frontier")
+            print("No solution found")
+            fromdict[self.frontier[-1]] = None
+            return
         else:
-            node = self.frontier[0] #first node
-            self.frontier = self.frontier[1:] # all except the first one 
+            node = self.frontier[0] #First node
+            node.make_closed();
+            self.explored.append(node); #adds node to explored set
+            self.frontier = self.frontier[1:] # all except the FIRST one 
             return node
 
 def solve_dfs(grid, start, end,draw):
