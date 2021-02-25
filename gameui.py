@@ -166,7 +166,7 @@ def solve_dfs(grid, start, end,draw):
         # Mark node as explored
     # If node is the goal, then we have a solution
         if end == check:
-            draw_path(fromdict, check, lambda: draw())
+            draw_path(fromdict,start, end, check, lambda: draw())
             print("We Found it!!")
             return
         grid[check.row][check.col].make_open()
@@ -210,7 +210,10 @@ def solve_bfs(grid, start, end,draw):
         # Mark node as explored
     # If node is the goal, then we have a solution
         if end == check:
-            draw_path(fromdict, check, lambda: draw())
+            draw_path(fromdict, start, end, check, lambda: draw())
+            start.color = ORANGE
+            end.color = TURQUOISE
+            draw()
             print("We Found it!!")
             return
         grid[check.row][check.col].make_open()
@@ -223,12 +226,14 @@ def solve_bfs(grid, start, end,draw):
         end.make_end()
         draw();
 # FUNCTIONS ---------------
-def draw_path(fromdict, current, draw):
+def draw_path(fromdict, start, end, current, draw):
     while current in fromdict:
         current = fromdict.pop(current)
-        if current != None:
+        if current != None and current != start and current != end:
             current.make_path()
         draw()
+    end.make_end();
+    draw()
     return
 
 def rand_maze(path_percent_int = 80):
