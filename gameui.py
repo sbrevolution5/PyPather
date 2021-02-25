@@ -229,7 +229,56 @@ def solve_bfs(grid, start, end,draw):
         start.make_start()
         end.make_end()
         draw();
+def solve_greedy_best(grid, start, end,draw):
+    #"""Finds a solution to maze, if one exists."""
+
+    
+
+    #keep track of path taken via dictionary
+    fromdict = {}
+    # Initialize frontier to just the starting position
+    frontier = QueueFrontier()
+    frontier.add(start)
+    #used to build fromdict
+    previous = None
+    check = None
+    # Keep looping until solution found
+    while True:
+        #time.sleep(0.1) #slows down animation probably completely inefficient
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+    # If nothing left in frontier, then no path
+        if frontier.empty():
+            print("Path unfindable")
+            return
+    # Choose a node from the frontier
+        if check != None:
+            previous = check
+        check = frontier.explore(fromdict)
+        fromdict[check] = previous
+        # Mark node as explored
+    # If node is the goal, then we have a solution
+        if end == check:
+            draw_path(fromdict, start, end, check, lambda: draw())
+            start.color = ORANGE
+            end.color = TURQUOISE
+            draw()
+            print("We Found it!!")
+            return
+        grid[check.row][check.col].make_open()
+    # Add neighbors to frontier unless they have already been explored
+        for neighbor in check.neighbors:
+            grid[neighbor.row][neighbor.col].make_closed();
+            if not frontier.contains_state(neighbor) and not neighbor in frontier.explored:
+                frontier.add(neighbor)
+        start.make_start()
+        end.make_end()
+        draw();
 # FUNCTIONS ---------------
+def NY_dist(cell, end): #finds the manhattan (NY) distance to the end
+    dist = cell.row-end.row + cell.col-end.col
+    return dist
 def draw_path(fromdict, start, end, current, draw):
     while current in fromdict:
         current = fromdict.pop(current)
