@@ -231,7 +231,8 @@ def solve_bfs(grid, start, end,draw):
         draw();
 def solve_greedy_best(grid, start, end,draw):
     #"""Finds a solution to maze, if one exists."""
-
+    # All you need is a priority queue that sets priority for cell based on the manhattan distance
+    
     
 
     #keep track of path taken via dictionary
