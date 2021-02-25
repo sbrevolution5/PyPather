@@ -4,6 +4,8 @@ import sys
 import time
 from queue import Queue, PriorityQueue
 from random import randint
+from itertools import count
+
 
 MAX_WIDTH = 50 # Maximum number of columns
 WIDTH = 800
@@ -137,24 +139,31 @@ class QueueFrontier(StackFrontier):
             self.explored.append(node); #adds node to explored set
             self.frontier = self.frontier[1:] # all except the FIRST one 
             return node
+
 class PriorityFrontier(StackFrontier):
     def __init__(self):
         super().__init__()
         self.frontier = PriorityQueue();
-    def add(self, node, dist): #takes the cell and manhattan distance
-        self.frontier.put(dist, node)
+        self.count = 0
+    def add(self, dist, node): #takes the cell and manhattan distance
+        self.count+=1
+        self.frontier.put((dist, self.count, node))
+    def empty(self):
+        return self.frontier.empty()
     def explore(self, fromdict): #previously called remove
         if self.frontier.empty():
             print("No solution found")
             fromdict[self.frontier[-1]] = None
             return
         else:
-            node = self.frontier.get() # first priority node
+            node = self.frontier.get()[2] # first priority node, only return the node itself
             node.make_closed();
             self.explored.append(node); #adds node to explored set
             # next line is unneccesary when using get,
             # self.frontier = self.frontier[1:] # all except the FIRST one 
             return node
+
+
 def solve_dfs(grid, start, end,draw):
     #"""Finds a solution to maze, if one exists."""
 
@@ -256,7 +265,7 @@ def solve_greedy_best(grid, start, end,draw):
     fromdict = {}
     # Initialize frontier to just the starting position
     frontier = PriorityFrontier()
-    frontier.add(start)
+    frontier.add(0,start)
     #used to build fromdict
     previous = None
     check = None
@@ -288,15 +297,16 @@ def solve_greedy_best(grid, start, end,draw):
     # Add neighbors to frontier unless they have already been explored
         for neighbor in check.neighbors:
             grid[neighbor.row][neighbor.col].make_closed();
-            if not frontier.contains_state(neighbor) and not neighbor in frontier.explored:
-                frontier.add(neighbor)
+            if not neighbor in frontier.explored: #removed: not frontier.contains_state(neighbor) and
+                frontier.add(NY_dist(neighbor,end), neighbor)
         start.make_start()
         end.make_end()
         draw();
 # FUNCTIONS ---------------
 def NY_dist(cell, end): #finds the manhattan (NY) distance to the end
-    dist = cell.row-end.row + cell.col-end.col
-    return dist
+    x1, y1 = cell.get_pos()
+    x2, y2 = cell.get_pos()
+    return abs(x1-x2) + abs(y1-y2)
 def draw_path(fromdict, start, end, current, draw):
     while current in fromdict:
         current = fromdict.pop(current)
