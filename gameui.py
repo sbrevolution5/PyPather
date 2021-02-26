@@ -372,9 +372,11 @@ def draw_path(fromdict, start, end, current, draw):
                 pygame.quit()
         current = fromdict[current]
         current.make_path()
+        if not end.is_end():
+            end.make_end()
+        if not start.is_start():
+            start.make_start()
         draw()
-    end.make_end();
-    draw()
 
 
 
