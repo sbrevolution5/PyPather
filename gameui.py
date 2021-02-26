@@ -103,9 +103,10 @@ class Spot:
 class StackFrontier():
     def __init__(self):
         self.frontier = []
-        self.explored = []
+        self.explored = set()
     # adds node to frontier
     def add(self, node):
+        node.make_open()
         self.frontier.append(node)
     #checks if state is in frontier
     def contains_state(self, state):
@@ -114,29 +115,27 @@ class StackFrontier():
     def empty(self):
         return len(self.frontier) == 0
     #Removes last  node in frontier
-    def explore(self, fromdict): #previously called remove
+    def explore(self): #previously called remove
         if self.empty():
             print("No solution found")
-            fromdict[self.frontier[-1]] = None
             return
         else:
             node = self.frontier[-1] #last node
             node.make_closed();
-            self.explored.append(node); #adds node to explored set
+            self.explored.add(node); #adds node to explored set
             self.frontier = self.frontier[:-1] # all except the last one 
             return node
 # TODO creat QueueFrontier for BFS
 class QueueFrontier(StackFrontier):
     #same as before except for remove
-    def explore(self, fromdict): #previously called remove
+    def explore(self): #previously called remove
         if self.empty():
             print("No solution found")
-            fromdict[self.frontier[-1]] = None
             return
         else:
             node = self.frontier[0] #First node
             node.make_closed();
-            self.explored.append(node); #adds node to explored set
+            self.explored.add(node); #adds node to explored set
             self.frontier = self.frontier[1:] # all except the FIRST one 
             return node
 
@@ -147,18 +146,18 @@ class PriorityFrontier(StackFrontier):
         self.count = 0
     def add(self, dist, node): #takes the cell and manhattan distance
         self.count+=1
+        node.make_open();
         self.frontier.put((dist, self.count, node))
     def empty(self):
         return self.frontier.empty()
-    def explore(self, fromdict): #previously called remove
+    def explore(self): #previously called remove
         if self.frontier.empty():
             print("No solution found")
-            fromdict[self.frontier[-1]] = None
             return
         else:
             node = self.frontier.get()[2] # first priority node, only return the node itself
             node.make_closed();
-            self.explored.append(node); #adds node to explored set
+            #self.explored.remove(node); #adds node to explored set
             # next line is unneccesary when using get,
             # self.frontier = self.frontier[1:] # all except the FIRST one 
             return node
@@ -191,7 +190,7 @@ def solve_dfs(grid, start, end,draw):
     # Choose a node from the frontier
         if check != None:
             previous = check
-        check = frontier.explore(fromdict)
+        check = frontier.explore()
         fromdict[check] = previous
         # Mark node as explored
     # If node is the goal, then we have a solution
@@ -235,7 +234,7 @@ def solve_bfs(grid, start, end,draw):
     # Choose a node from the frontier
         if check != None:
             previous = check
-        check = frontier.explore(fromdict)
+        check = frontier.explore()
         fromdict[check] = previous
         # Mark node as explored
     # If node is the goal, then we have a solution
@@ -258,33 +257,27 @@ def solve_bfs(grid, start, end,draw):
 def solve_greedy_best(grid, start, end,draw):
     #"""Finds a solution to maze, if one exists."""
     # All you need is a priority queue that sets priority for cell based on the manhattan distance
-
-    
-
     #keep track of path taken via dictionary
     fromdict = {}
+    huer = {spot: float("inf") for row in grid for spot in row}
+    huer[start] = 0;
     # Initialize frontier to just the starting position
     frontier = PriorityFrontier()
     frontier.add(0,start)
     #used to build fromdict
     previous = None
-    check = None
+    check = start
     # Keep looping until solution found
-    while True:
-        #time.sleep(0.1) #slows down animation probably completely inefficient
+    while not frontier.empty(): #while frontier isn't empty
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-    # If nothing left in frontier, then no path
-        if frontier.empty():
-            print("Path unfindable")
-            return
+    
     # Choose a node from the frontier
-        if check != None:
-            previous = check
-        check = frontier.explore(fromdict)
-        fromdict[check] = previous
-        # Mark node as explored
+        previous = check
+        check = frontier.explore()
+        #this highlights ALL squares, not just the best.  Should be conditional in some way, determining if we really need to add to the fromdict
+        fromdict[check] = previous # this node came from the previous node
     # If node is the goal, then we have a solution
         if end == check:
             draw_path(fromdict, start, end, check, lambda: draw())
@@ -296,9 +289,13 @@ def solve_greedy_best(grid, start, end,draw):
         grid[check.row][check.col].make_open()
     # Add neighbors to frontier unless they have already been explored
         for neighbor in check.neighbors:
-            grid[neighbor.row][neighbor.col].make_closed();
-            if not neighbor in frontier.explored: #removed: not frontier.contains_state(neighbor) and
-                frontier.add(NY_dist(neighbor,end), neighbor)
+            if huer[check] < huer[neighbor]:
+                huer[neighbor] = NY_dist(neighbor, end);
+                grid[neighbor.row][neighbor.col].make_open();
+                if neighbor not in frontier.explored: #removed: not frontier.contains_state(neighbor) and
+                    frontier.add(NY_dist(neighbor,end), neighbor)
+            else:
+                neighbor.make_closed();
         start.make_start()
         end.make_end()
         draw();
