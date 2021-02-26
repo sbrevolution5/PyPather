@@ -504,14 +504,14 @@ def main(win, width):
                             spot.update_neighbors(grid)
                     print("Running greedy best pathfinding algorithm, eventually....")
                     solve_greedy_best(grid, start, end,lambda:draw(win, grid, rows, width))
-                if event.key == pygame.K_a and start!=None and end!=None:
+                if event.key == pygame.K_a or event.key == pygame.K_SPACE and start!=None and end!=None:
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
                     print("Running a * pathfinding algorithm, eventually....")
                     solve_a_star(grid, start, end,lambda:draw(win, grid, rows, width))
                 
-                if event.key == pygame.K_SPACE and start!=None and end!=None:
+                if event.key == pygame.K_d and start!=None and end!=None:
                     for row in grid:
                         for spot in row:
                             spot.update_neighbors(grid)
