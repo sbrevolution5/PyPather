@@ -135,7 +135,6 @@ class QueueFrontier(StackFrontier):
         else:
             node = self.frontier[0] #First node
             node.make_closed();
-            self.explored.add(node); #adds node to explored set
             self.frontier = self.frontier[1:] # all except the FIRST one 
             return node
 
@@ -259,8 +258,9 @@ def solve_greedy_best(grid, start, end,draw):
     # All you need is a priority queue that sets priority for cell based on the manhattan distance
     #keep track of path taken via dictionary
     fromdict = {}
-    huer = {spot: float("inf") for row in grid for spot in row}
+    huer = {spot: NY_dist(spot, end) for row in grid for spot in row}
     huer[start] = 0;
+    explored = {start}
     # Initialize frontier to just the starting position
     frontier = PriorityFrontier()
     frontier.add(0,start)
@@ -276,6 +276,7 @@ def solve_greedy_best(grid, start, end,draw):
     # Choose a node from the frontier
         previous = check
         check = frontier.explore()
+        explored.remove(check)
         #this highlights ALL squares, not just the best.  Should be conditional in some way, determining if we really need to add to the fromdict
         fromdict[check] = previous # this node came from the previous node
     # If node is the goal, then we have a solution
@@ -289,11 +290,66 @@ def solve_greedy_best(grid, start, end,draw):
         grid[check.row][check.col].make_open()
     # Add neighbors to frontier unless they have already been explored
         for neighbor in check.neighbors:
-            if huer[check] < huer[neighbor]:
+            temphuer = huer[check]+1
+            if temphuer > huer[neighbor]:
+                fromdict[neighbor] = check
                 huer[neighbor] = NY_dist(neighbor, end);
                 grid[neighbor.row][neighbor.col].make_open();
-                if neighbor not in frontier.explored: #removed: not frontier.contains_state(neighbor) and
+                if neighbor not in explored: #removed: not frontier.contains_state(neighbor) and
                     frontier.add(NY_dist(neighbor,end), neighbor)
+                    explored.add(neighbor)
+                    neighbor.make_closed();
+            else:
+                neighbor.make_closed();
+        start.make_start()
+        end.make_end()
+        draw();
+def solve_a_star(grid, start, end, draw):
+     #"""Finds a solution to maze, if one exists."""
+    # All you need is a priority queue that sets priority for cell based on the manhattan distance
+    #keep track of path taken via dictionary
+    fromdict = {}
+    huer = {spot: NY_dist(spot, end) for row in grid for spot in row}
+    huer[start] = 0;
+    explored = {start}
+    # Initialize frontier to just the starting position
+    frontier = PriorityFrontier()
+    frontier.add(0,start)
+    #used to build fromdict
+    previous = None
+    check = start
+    # Keep looping until solution found
+    while not frontier.empty(): #while frontier isn't empty
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+    
+    # Choose a node from the frontier
+        previous = check
+        check = frontier.explore()
+        explored.remove(check)
+        #this highlights ALL squares, not just the best.  Should be conditional in some way, determining if we really need to add to the fromdict
+        fromdict[check] = previous # this node came from the previous node
+    # If node is the goal, then we have a solution
+        if end == check:
+            draw_path(fromdict, start, end, check, lambda: draw())
+            start.color = ORANGE
+            end.color = TURQUOISE
+            draw()
+            print("We Found it!!")
+            return
+        grid[check.row][check.col].make_open()
+    # Add neighbors to frontier unless they have already been explored
+        for neighbor in check.neighbors:
+            temphuer = huer[check]+1
+            if temphuer > huer[neighbor]:
+                fromdict[neighbor] = check
+                huer[neighbor] = NY_dist(neighbor, end);
+                grid[neighbor.row][neighbor.col].make_open();
+                if neighbor not in explored: #removed: not frontier.contains_state(neighbor) and
+                    frontier.add(NY_dist(neighbor,end), neighbor)
+                    explored.add(neighbor)
+                    neighbor.make_closed();
             else:
                 neighbor.make_closed();
         start.make_start()
@@ -305,14 +361,21 @@ def NY_dist(cell, end): #finds the manhattan (NY) distance to the end
     x2, y2 = cell.get_pos()
     return abs(x1-x2) + abs(y1-y2)
 def draw_path(fromdict, start, end, current, draw):
+    
+    
+    #current is the neighbor, fromdict[current] gives the "parent"
     while current in fromdict:
-        current = fromdict.pop(current)
-        if current != None and current != start and current != end:
-            current.make_path()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+        current = fromdict[current]
+        current.make_path()
         draw()
     end.make_end();
     draw()
     return
+
+
 
 def rand_maze(path_percent_int = 80):
 
