@@ -335,8 +335,8 @@ def solve_a_star(grid, start, end, draw):
     # If node is the goal, then we have a solution
         if end == check:
             draw_path(fromdict, start, end, check, lambda: draw())
-            start.color = ORANGE
-            end.color = TURQUOISE
+            start.make_start()
+            end.make_end()
             draw()
             print("We Found it!!")
             return
@@ -347,7 +347,7 @@ def solve_a_star(grid, start, end, draw):
             if temphuer < huer2[neighbor]:
                 huer[neighbor] = NY_dist(neighbor, end);
                 huer2[neighbor] = huer[neighbor] + temphuer
-                grid[neighbor.row][neighbor.col].make_closed();
+                # grid[neighbor.row][neighbor.col].make_closed();
                 # fromdict[neighbor] = check
                 if neighbor not in explored: #removed: not frontier.contains_state(neighbor) and
                     frontier.add(NY_dist(neighbor,end), neighbor)
@@ -359,6 +359,8 @@ def solve_a_star(grid, start, end, draw):
         start.make_start()
         end.make_end()
         draw();
+        if check != start:
+            check.make_closed();
 # FUNCTIONS ---------------
 def NY_dist(cell, end): #finds the manhattan (NY) distance to the end
     x1, y1 = cell.get_pos()
@@ -366,16 +368,9 @@ def NY_dist(cell, end): #finds the manhattan (NY) distance to the end
     return abs(x1-x2) + abs(y1-y2)
 def draw_path(fromdict, start, end, current, draw):
     #current is the neighbor, fromdict[current] gives the "parent"
-    while current in fromdict:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
+    while current != start:
         current = fromdict[current]
         current.make_path()
-        if not end.is_end():
-            end.make_end()
-        if not start.is_start():
-            start.make_start()
         draw()
 
 
