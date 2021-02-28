@@ -36,12 +36,8 @@ class Spot:
         self.width = width
         self.height = height
         self.neighbors = []
-    # determine position
-
     def get_pos(self):
         return (self.col, self.row)
-    # let me draw the spots
-
     def draw(self, win):
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.height))
     
@@ -51,23 +47,17 @@ class Spot:
 
     def make_start(self):
         self.color = ORANGE
-
     def make_end(self):
         self.color = TURQUOISE
-
     def make_closed(self):
         self.color = RED
-
     def make_open(self):
         self.color = GREEN
-
     def reset(self):
         self.color = WHITE
-
     def make_path(self):
         self.color = PURPLE
     # Boolean accessors is start/is end etc
-
     def is_wall(self):
         return self.color == BLACK
 
@@ -83,7 +73,6 @@ class Spot:
     def is_open(self):
         return self.color == GREEN
     # function to fill in neighbors
-    #when to call it?
     def update_neighbors(self, grid):
         self.neighbors = []  # erases current neighbors
         # if it isn't the last row and the one below it isn't a wall,
