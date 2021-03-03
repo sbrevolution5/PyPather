@@ -124,7 +124,7 @@ class QueueFrontier(StackFrontier):
             self.frontier = self.frontier[1:] # all except the FIRST one 
             return node
 
-class PriorityFrontier(StackFrontier):
+class PriorityFrontier(QueueFrontier):
     def __init__(self):
         super().__init__()
         self.frontier = PriorityQueue();
@@ -147,7 +147,7 @@ class PriorityFrontier(StackFrontier):
             # self.frontier = self.frontier[1:] # all except the FIRST one 
             return node
 
-
+# Algorithms --------------
 def solve_dfs(grid, start, end,draw):
     #"""Finds a solution to maze, if one exists."""
 
@@ -296,10 +296,10 @@ def solve_a_star(grid, start, end, draw):
     # All you need is a priority queue that sets priority for cell based on the manhattan distance
     #keep track of path taken via dictionary
     fromdict = {}
-    huer = {spot: float("inf") for row in grid for spot in row}
-    huer[start] = NY_dist(start, end);
-    huer2 = {spot: float("inf") for row in grid for spot in row}
-    huer2[start] = 0;
+    manh = {spot: float("inf") for row in grid for spot in row}
+    manh[start] = NY_dist(start, end);
+    starh = {spot: float("inf") for row in grid for spot in row}
+    starh[start] = 0;
     explored = {start}
     # Initialize frontier to just the starting position
     frontier = PriorityFrontier()
@@ -313,11 +313,11 @@ def solve_a_star(grid, start, end, draw):
                 pygame.quit()
     
     # Choose a node from the frontier
-        previous = check
+        #previous = check
         check = frontier.explore()
         # explored.remove(check)
         #this highlights ALL squares, not just the best.  Should be conditional in some way, determining if we really need to add to the fromdict
-        fromdict[check] = previous # this node came from the previous node
+        #fromdict[check] = previous # this node came from the previous node
     # If node is the goal, then we have a solution
         if end == check:
             draw_path(fromdict, start, end, check, lambda: draw())
@@ -329,12 +329,12 @@ def solve_a_star(grid, start, end, draw):
         grid[check.row][check.col].make_open()
     # Add neighbors to frontier unless they have already been explored
         for neighbor in check.neighbors:
-            temphuer = huer2[check]+1
-            if temphuer < huer2[neighbor]:
-                huer[neighbor] = NY_dist(neighbor, end);
-                huer2[neighbor] = huer[neighbor] + temphuer
+            temphuer = starh[check]+1
+            if temphuer < starh[neighbor]:
+                manh[neighbor] = NY_dist(neighbor, end);
+                starh[neighbor] = manh[neighbor] + temphuer
                 # grid[neighbor.row][neighbor.col].make_closed();
-                # fromdict[neighbor] = check
+                fromdict[neighbor] = check
                 if neighbor not in explored: #removed: not frontier.contains_state(neighbor) and
                     frontier.add(NY_dist(neighbor,end), neighbor)
                     explored.add(neighbor)
