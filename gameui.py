@@ -296,15 +296,14 @@ def solve_a_star(grid, start, end, draw):
     # All you need is a priority queue that sets priority for cell based on the manhattan distance
     #keep track of path taken via dictionary
     fromdict = {}
-    manh = {spot: float("inf") for row in grid for spot in row}
+    manh = {spot: float("inf") for row in grid for spot in row}# dictionary of manhattan distances
     manh[start] = NY_dist(start, end);
-    starh = {spot: float("inf") for row in grid for spot in row}
+    starh = {spot: float("inf") for row in grid for spot in row} #dictionary of a* hueristics
     starh[start] = 0;
     explored = {start}
     # Initialize frontier to just the starting position
     frontier = PriorityFrontier()
     frontier.add(0,start)
-    #used to build fromdict
     check = start
     # Keep looping until solution found
     while not frontier.empty(): #while frontier isn't empty
@@ -313,11 +312,7 @@ def solve_a_star(grid, start, end, draw):
                 pygame.quit()
     
     # Choose a node from the frontier
-        #previous = check
         check = frontier.explore()
-        # explored.remove(check)
-        #this highlights ALL squares, not just the best.  Should be conditional in some way, determining if we really need to add to the fromdict
-        #fromdict[check] = previous # this node came from the previous node
     # If node is the goal, then we have a solution
         if end == check:
             draw_path(fromdict, start, end, check, lambda: draw())
