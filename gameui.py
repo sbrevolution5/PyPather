@@ -1,7 +1,4 @@
 import pygame
-import math
-import sys
-import time
 from queue import Queue, PriorityQueue
 from random import randint
 from itertools import count
