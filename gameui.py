@@ -107,7 +107,7 @@ class StackFrontier():
             return
         else:
             node = self.frontier[-1] #last node
-            node.make_closed();
+            node.make_closed()
             self.explored.add(node); #adds node to explored set
             self.frontier = self.frontier[:-1] # all except the last one 
             return node
@@ -120,18 +120,18 @@ class QueueFrontier(StackFrontier):
             return
         else:
             node = self.frontier[0] #First node
-            node.make_closed();
+            node.make_closed()
             self.frontier = self.frontier[1:] # all except the FIRST one 
             return node
 
 class PriorityFrontier(QueueFrontier):
     def __init__(self):
         super().__init__()
-        self.frontier = PriorityQueue();
+        self.frontier = PriorityQueue()
         self.count = 0
     def add(self, dist, node): #takes the cell and manhattan distance
         self.count+=1
-        node.make_open();
+        node.make_open()
         self.frontier.put((dist, self.count, node))
     def empty(self):
         return self.frontier.empty()
@@ -141,7 +141,7 @@ class PriorityFrontier(QueueFrontier):
             return
         else:
             node = self.frontier.get()[2] # first priority node, only return the node itself
-            node.make_closed();
+            node.make_closed()
             #self.explored.remove(node); #adds node to explored set
             # next line is unneccesary when using get,
             # self.frontier = self.frontier[1:] # all except the FIRST one 
@@ -186,12 +186,12 @@ def solve_dfs(grid, start, end,draw):
         grid[check.row][check.col].make_open()
     # Add neighbors to frontier unless they have already been explored
         for neighbor in check.neighbors:
-            grid[neighbor.row][neighbor.col].make_closed();
+            grid[neighbor.row][neighbor.col].make_closed()
             if not frontier.contains_state(neighbor) and not neighbor in frontier.explored:
                 frontier.add(neighbor)
         start.make_start()
         end.make_end()
-        draw();
+        draw()
 def solve_bfs(grid, start, end,draw):
     #"""Finds a solution to maze, if one exists."""
 
@@ -233,19 +233,19 @@ def solve_bfs(grid, start, end,draw):
         grid[check.row][check.col].make_open()
     # Add neighbors to frontier unless they have already been explored
         for neighbor in check.neighbors:
-            grid[neighbor.row][neighbor.col].make_closed();
+            grid[neighbor.row][neighbor.col].make_closed()
             if not frontier.contains_state(neighbor) and not neighbor in frontier.explored:
                 frontier.add(neighbor)
         start.make_start()
         end.make_end()
-        draw();
+        draw()
 def solve_greedy_best(grid, start, end,draw):
     #"""Finds a solution to maze, if one exists."""
     # All you need is a priority queue that sets priority for cell based on the manhattan distance
     #keep track of path taken via dictionary
     fromdict = {}
     huer = {spot: float("inf") for row in grid for spot in row}
-    huer[start] = NY_dist(start, end);
+    huer[start] = NY_dist(start, end)
     explored = {start}
     # Initialize frontier to just the starting position
     frontier = PriorityFrontier()
@@ -278,28 +278,28 @@ def solve_greedy_best(grid, start, end,draw):
         for neighbor in check.neighbors:
             temphuer = huer[check]+1
             if temphuer < huer[neighbor]:
-                huer[neighbor] = NY_dist(neighbor, end);
-                grid[neighbor.row][neighbor.col].make_closed();
+                huer[neighbor] = NY_dist(neighbor, end)
+                grid[neighbor.row][neighbor.col].make_closed()
                 fromdict[neighbor] = check
                 if neighbor not in explored: #removed: not frontier.contains_state(neighbor) and
                     frontier.add(NY_dist(neighbor,end), neighbor)
                     explored.add(neighbor)
-                    neighbor.make_open();
+                    neighbor.make_open()
             else:
-                neighbor.make_closed();
+                neighbor.make_closed()
                 
         start.make_start()
         end.make_end()
-        draw();
+        draw()
 def solve_a_star(grid, start, end, draw):
         #"""Finds a solution to maze, if one exists."""
     # All you need is a priority queue that sets priority for cell based on the manhattan distance
     #keep track of path taken via dictionary
     fromdict = {}
     manh = {spot: float("inf") for row in grid for spot in row}# dictionary of manhattan distances
-    manh[start] = NY_dist(start, end);
+    manh[start] = NY_dist(start, end)
     starh = {spot: float("inf") for row in grid for spot in row} #dictionary of a* hueristics
-    starh[start] = 0;
+    starh[start] = 0
     explored = {start}
     # Initialize frontier to just the starting position
     frontier = PriorityFrontier()
@@ -326,22 +326,22 @@ def solve_a_star(grid, start, end, draw):
         for neighbor in check.neighbors:
             temphuer = starh[check]+1
             if temphuer < starh[neighbor]:
-                manh[neighbor] = NY_dist(neighbor, end);
+                manh[neighbor] = NY_dist(neighbor, end)
                 starh[neighbor] = manh[neighbor] + temphuer
                 # grid[neighbor.row][neighbor.col].make_closed();
                 fromdict[neighbor] = check
                 if neighbor not in explored: #removed: not frontier.contains_state(neighbor) and
                     frontier.add(NY_dist(neighbor,end), neighbor)
                     explored.add(neighbor)
-                    neighbor.make_open();
+                    neighbor.make_open()
             else:
-                neighbor.make_closed();
+                neighbor.make_closed()
                 
         start.make_start()
         end.make_end()
-        draw();
+        draw()
         if check != start:
-            check.make_closed();
+            check.make_closed()
 # FUNCTIONS ---------------
 def NY_dist(cell, end): #finds the manhattan (NY) distance to the end
     x1, y1 = cell.get_pos()
@@ -425,7 +425,7 @@ def draw(win, grid, rows, width):
     pygame.display.update()
 # where did the user click?
 def get_clicked_pos(pos, rows, width):
-    y, x = pos;
+    y, x = pos
     gap = width // rows
     row = y // gap
     col = x // gap
@@ -454,10 +454,10 @@ def main(win, width):
                 spot = grid[row][col]
                 if not start and spot != end:
                     start = spot
-                    spot.make_start();
+                    spot.make_start()
                 elif not end and spot != start:
                     end = spot
-                    spot.make_end();
+                    spot.make_end()
                 elif spot != end and spot!=start:
                     spot.make_wall()
             if pygame.mouse.get_pressed()[2]: # rclick
